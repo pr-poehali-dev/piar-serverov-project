@@ -6,7 +6,7 @@ export default {
 		"./pages/**/*.{ts,tsx}",
 		"./components/**/*.{ts,tsx}",
 		"./app/**/*.{ts,tsx}",
-		"./src/**/*.{ts,tsx}",
+		"./src/**/*.{ts,tsx}"
 	],
 	prefix: "",
 	theme: {
@@ -18,6 +18,10 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				heading: ['Montserrat', 'sans-serif'],
+				body: ['Roboto', 'sans-serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -61,6 +65,11 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				cosmic: {
+					purple: '#9b87f5',
+					blue: '#1EAEDB',
+					dark: '#1A1F2C',
 				}
 			},
 			borderRadius: {
@@ -84,11 +93,36 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'rgb-glow': {
+					'0%, 100%': { 
+						textShadow: '0 0 20px #FF4444, 0 0 40px #FF4444, 0 0 60px #FFD700',
+						color: '#FF4444'
+					},
+					'50%': { 
+						textShadow: '0 0 20px #FFD700, 0 0 40px #FFD700, 0 0 60px #FF4444',
+						color: '#FFD700'
+					}
+				},
+				'float': {
+					'0%, 100%': { transform: 'translateY(0px)' },
+					'50%': { transform: 'translateY(-20px)' }
+				},
+				'pulse-glow': {
+					'0%, 100%': { 
+						boxShadow: '0 0 20px rgba(255, 215, 0, 0.3), 0 0 40px rgba(255, 68, 68, 0.2)'
+					},
+					'50%': { 
+						boxShadow: '0 0 30px rgba(255, 215, 0, 0.6), 0 0 60px rgba(255, 68, 68, 0.4)'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'rgb-glow': 'rgb-glow 3s ease-in-out infinite',
+				'float': 'float 6s ease-in-out infinite',
+				'pulse-glow': 'pulse-glow 2s ease-in-out infinite'
 			}
 		}
 	},
