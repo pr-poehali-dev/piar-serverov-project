@@ -28,7 +28,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     try:
         if method == 'GET':
             cur.execute("""
-                SELECT id, name, ip, description, players, max_players, version, is_online, added_at
+                SELECT id, name, ip, description, players, max_players, version, is_online, added_at, motd, icon_url
                 FROM minecraft_servers
                 ORDER BY added_at DESC
             """)
@@ -45,7 +45,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'maxPlayers': row[5],
                     'version': row[6],
                     'isOnline': row[7],
-                    'addedAt': row[8].isoformat() if row[8] else None
+                    'addedAt': row[8].isoformat() if row[8] else None,
+                    'motd': row[9],
+                    'iconUrl': row[10]
                 })
             
             return {
@@ -72,7 +74,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 SET name = EXCLUDED.name, 
                     description = EXCLUDED.description,
                     version = EXCLUDED.version
-                RETURNING id, name, ip, description, players, max_players, version, is_online, added_at
+                RETURNING id, name, ip, description, players, max_players, version, is_online, added_at, motd, icon_url
             """, (name, ip, description, version))
             
             row = cur.fetchone()
@@ -87,7 +89,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'maxPlayers': row[5],
                 'version': row[6],
                 'isOnline': row[7],
-                'addedAt': row[8].isoformat() if row[8] else None
+                'addedAt': row[8].isoformat() if row[8] else None,
+                'motd': row[9],
+                'iconUrl': row[10]
             }
             
             return {

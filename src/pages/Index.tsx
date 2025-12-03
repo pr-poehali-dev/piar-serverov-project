@@ -16,9 +16,12 @@ interface MinecraftServer {
   description: string;
   isOnline?: boolean;
   addedAt?: string;
+  motd?: string;
+  iconUrl?: string;
 }
 
 const API_URL = 'https://functions.poehali.dev/c03fddbf-216c-45a4-848c-2a3e2792f072';
+const STATUS_API_URL = 'https://functions.poehali.dev/5d9382ef-f6d6-446c-81c8-62291dd53651';
 
 const Index = () => {
   const [servers, setServers] = useState<MinecraftServer[]>([]);
@@ -48,9 +51,19 @@ const Index = () => {
     }
   };
 
+  const updateServerStatuses = async () => {
+    try {
+      await fetch(STATUS_API_URL);
+      await loadServers();
+    } catch (error) {
+      console.error('Failed to update server statuses:', error);
+    }
+  };
+
   useEffect(() => {
     loadServers();
-    const interval = setInterval(loadServers, 30000);
+    updateServerStatuses();
+    const interval = setInterval(updateServerStatuses, 60000);
     return () => clearInterval(interval);
   }, []);
 
@@ -269,18 +282,37 @@ const Index = () => {
                 className="bg-card/40 backdrop-blur-lg border-2 border-primary/20 hover:border-primary/40 transition-all duration-300 hover:scale-105 hover:shadow-2xl animate-scale-in"
               >
                 <CardHeader>
-                  <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-3 mb-2">
+                    {server.iconUrl ? (
+                      <img 
+                        src={server.iconUrl} 
+                        alt={server.name}
+                        className="w-16 h-16 rounded-lg border-2 border-primary/30"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 rounded-lg border-2 border-primary/30 bg-primary/10 flex items-center justify-center">
+                        <Icon name="Gamepad2" size={32} className="text-primary" />
+                      </div>
+                    )}
                     <div className="flex-1">
-                      <CardTitle className="text-2xl font-heading flex items-center gap-2 mb-2">
-                        <Icon name="Gamepad2" size={28} className="text-primary" />
-                        {server.name}
-                      </CardTitle>
-                      <CardDescription className="text-sm">
-                        {server.description || 'Без описания'}
-                      </CardDescription>
-                    </div>
-                    <div className={`px-3 py-1 rounded-full text-xs font-bold ${server.isOnline ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-                      {server.isOnline ? '● Онлайн' : '○ Оффлайн'}
+                      <div className="flex items-start justify-between gap-2">
+                        <CardTitle className="text-2xl font-heading">
+                          {server.name}
+                        </CardTitle>
+                        <div className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap ${server.isOnline ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                          {server.isOnline ? '● Онлайн' : '○ Оффлайн'}
+                        </div>
+                      </div>
+                      {server.motd && (
+                        <CardDescription className="text-sm mt-1 line-clamp-2">
+                          {server.motd}
+                        </CardDescription>
+                      )}
+                      {!server.motd && server.description && (
+                        <CardDescription className="text-sm mt-1">
+                          {server.description}
+                        </CardDescription>
+                      )}
                     </div>
                   </div>
                 </CardHeader>
