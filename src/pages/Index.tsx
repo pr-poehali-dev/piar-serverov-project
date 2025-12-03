@@ -27,6 +27,7 @@ const Index = () => {
   const [servers, setServers] = useState<MinecraftServer[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     ip: '',
@@ -51,12 +52,28 @@ const Index = () => {
     }
   };
 
-  const updateServerStatuses = async () => {
+  const updateServerStatuses = async (showToast = false) => {
+    if (showToast) setIsUpdating(true);
     try {
       await fetch(STATUS_API_URL);
       await loadServers();
+      if (showToast) {
+        toast({
+          title: "Обновлено! ✅",
+          description: "Статусы серверов обновлены",
+        });
+      }
     } catch (error) {
       console.error('Failed to update server statuses:', error);
+      if (showToast) {
+        toast({
+          title: "Ошибка",
+          description: "Не удалось обновить статусы",
+          variant: "destructive"
+        });
+      }
+    } finally {
+      if (showToast) setIsUpdating(false);
     }
   };
 
@@ -88,7 +105,7 @@ const Index = () => {
       });
 
       if (response.ok) {
-        await loadServers();
+        await updateServerStatuses(false);
         setFormData({
           name: '',
           ip: '',
@@ -99,7 +116,7 @@ const Index = () => {
         
         toast({
           title: "Сервер добавлен! 🎮",
-          description: "Ваш Minecraft сервер теперь на платформе",
+          description: "Все пользователи теперь видят ваш сервер на платформе",
         });
       }
     } catch (error) {
@@ -179,14 +196,33 @@ const Index = () => {
             </div>
           )}
           
-          <Button 
-            size="lg"
-            onClick={() => setIsFormOpen(!isFormOpen)}
-            className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-primary-foreground font-heading font-bold text-xl px-8 py-6 rounded-xl shadow-2xl animate-pulse-glow transition-all duration-300 hover:scale-105"
-          >
-            <Icon name="Plus" className="mr-2" size={24} />
-            Добавить свой сервер
-          </Button>
+          <div className="flex items-center justify-center gap-4 flex-wrap">
+            <Button 
+              size="lg"
+              onClick={() => setIsFormOpen(!isFormOpen)}
+              className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-primary-foreground font-heading font-bold text-xl px-8 py-6 rounded-xl shadow-2xl animate-pulse-glow transition-all duration-300 hover:scale-105"
+            >
+              <Icon name="Plus" className="mr-2" size={24} />
+              Добавить свой сервер
+            </Button>
+            
+            {totalServers > 0 && (
+              <Button
+                size="lg"
+                onClick={() => updateServerStatuses(true)}
+                disabled={isUpdating}
+                variant="outline"
+                className="font-heading font-bold text-lg px-6 py-6 rounded-xl border-2 border-primary/30 hover:border-primary/50 transition-all duration-300 hover:scale-105"
+              >
+                <Icon name={isUpdating ? "Loader2" : "RefreshCw"} className={`mr-2 ${isUpdating ? 'animate-spin' : ''}`} size={20} />
+                {isUpdating ? 'Обновляем...' : 'Обновить статусы'}
+              </Button>
+            )}
+          </div>
+          
+          <p className="mt-6 text-sm text-muted-foreground">
+            💡 Все серверы видны всем пользователям платформы
+          </p>
         </div>
 
         {isFormOpen && (
@@ -196,8 +232,14 @@ const Index = () => {
                 <Icon name="Server" size={32} />
                 Добавить Minecraft сервер
               </CardTitle>
-              <CardDescription className="text-base">
-                Заполните информацию о вашем сервере
+              <CardDescription className="text-base space-y-2">
+                <p>Заполните информацию о вашем сервере</p>
+                <div className="bg-primary/10 border border-primary/30 rounded-lg p-3 text-sm">
+                  <p className="flex items-start gap-2">
+                    <Icon name="Info" size={16} className="mt-0.5 flex-shrink-0" />
+                    <span>Ваш сервер будет виден всем пользователям платформы. Статистика (онлайн, иконка, MOTD) обновляется автоматически каждую минуту.</span>
+                  </p>
+                </div>
               </CardDescription>
             </CardHeader>
             <CardContent>
