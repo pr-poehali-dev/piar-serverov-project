@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -17,7 +17,10 @@ interface MinecraftServer {
 }
 
 const Index = () => {
-  const [servers, setServers] = useState<MinecraftServer[]>([]);
+  const [servers, setServers] = useState<MinecraftServer[]>(() => {
+    const saved = localStorage.getItem('minecraft-servers');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -28,6 +31,13 @@ const Index = () => {
     description: ''
   });
   const { toast } = useToast();
+
+  useEffect(() => {
+    localStorage.setItem('minecraft-servers', JSON.stringify(servers));
+  }, [servers]);
+
+  const totalPlayers = servers.reduce((sum, server) => sum + server.players, 0);
+  const totalServers = servers.length;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,9 +102,32 @@ const Index = () => {
           <h1 className="text-6xl md:text-8xl font-heading font-bold mb-6 animate-rgb-glow">
             ПРОПЕАРЬ ТУТ<br/>СВОЙ СЕРВЕР!
           </h1>
-          <p className="text-xl md:text-2xl text-foreground/90 mb-8 font-body">
+          <p className="text-xl md:text-2xl text-foreground/90 mb-4 font-body">
             🚀 Лучшая платформа для продвижения Minecraft серверов
           </p>
+          
+          {totalServers > 0 && (
+            <div className="flex items-center justify-center gap-8 mb-8">
+              <div className="bg-card/40 backdrop-blur-lg px-6 py-3 rounded-xl border border-primary/30">
+                <div className="flex items-center gap-2">
+                  <Icon name="Server" size={24} className="text-primary" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Всего серверов</p>
+                    <p className="text-2xl font-bold text-primary">{totalServers}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-card/40 backdrop-blur-lg px-6 py-3 rounded-xl border border-accent/30">
+                <div className="flex items-center gap-2">
+                  <Icon name="Users" size={24} className="text-accent" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Игроков онлайн</p>
+                    <p className="text-2xl font-bold text-accent">{totalPlayers}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
           
           <Button 
             size="lg"
